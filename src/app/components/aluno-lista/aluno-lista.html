@@ -1,0 +1,44 @@
+<section class="container py-5">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1">Alunos cadastrados</h1>
+      <p class="text-body-secondary mb-0">Lista de alunos salvos neste navegador.</p>
+    </div>
+    <a routerLink="/alunos/cadastrar" class="btn btn-primary">
+      <i class="bi bi-person-plus me-1" aria-hidden="true"></i>
+      Cadastrar aluno
+    </a>
+  </div>
+
+  @if (carregando()) {
+    <p role="status">Carregando alunos...</p>
+  } @else if (erro()) {
+    <div class="alert alert-danger" role="alert">{{ erro() }}</div>
+  } @else if (alunos().length === 0) {
+    <div class="alert alert-info" role="status">
+      Nenhum aluno cadastrado.
+      <a routerLink="/alunos/cadastrar" class="alert-link">Cadastre o primeiro aluno.</a>
+    </div>
+  } @else {
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">CPF</th>
+            <th scope="col">Nome</th>
+            <th scope="col">Graduação</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (aluno of alunos(); track aluno.cpf) {
+            <tr>
+              <td>{{ aluno.cpf }}</td>
+              <td>{{ aluno.nome }}</td>
+              <td>{{ aluno.graduacao }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
