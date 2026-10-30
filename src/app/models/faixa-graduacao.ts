@@ -1,0 +1,17 @@
+export enum FaixaGraduacao {
+  BRANCA = 'Branca',
+  BRANCAPONTACINZA = 'Branca ponta cinza',
+  CINZA = 'Cinza',
+  CINZAPONTAAZUL = 'Cinza ponta azul',
+  AZUL = 'Azul',
+  AZULPONTAAMARELA = 'Azul ponta amarela',
+  AMARELA = 'Amarela',
+  AMARELAPONTALARANJA = 'Amarela ponta azul',
+  LARANJA = 'Laranja',
+  VERDE = 'Verde',
+  ROXA = 'Roxa',
+  MARROM = 'Marrom',
+  PRETA = 'Preta',
+  CORAL = 'Kodansha',
+  VERMELHA = 'Vermelha',
+}
