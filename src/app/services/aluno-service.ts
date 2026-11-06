@@ -1,12 +1,12 @@
-import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { PLATFORM_ID, Service, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Aluno } from '../models/aluno.model';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class AlunoService {
   private readonly plataforma = inject(PLATFORM_ID);
+  private readonly alunosSignal = signal<Aluno[]>([]);
+  readonly alunos = this.alunosSignal.asReadonly();
 
   async listar(): Promise<Aluno[]> {
     const banco = await this.abrirBanco();
@@ -19,6 +19,7 @@ export class AlunoService {
 
       requisicao.onsuccess = () => {
         banco.close();
+        this.alunosSignal.set(requisicao.result);
         resolve(requisicao.result);
       };
 
@@ -32,12 +33,13 @@ export class AlunoService {
   async cadastrar(aluno: Aluno): Promise<void> {
     const banco = await this.abrirBanco();
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject)   => {
       const transacao = banco.transaction('alunos', 'readwrite');
       transacao.objectStore('alunos').add(aluno);
 
       transacao.oncomplete = () => {
         banco.close();
+        this.alunosSignal.update((alunos) => [...alunos, aluno]);
         resolve();
       };
 
