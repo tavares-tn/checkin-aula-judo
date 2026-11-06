@@ -15,6 +15,8 @@ export class AlunoLista implements OnInit {
   readonly alunos = this.alunoService.alunos;
   carregando = signal(true);
   erro = signal('');
+  erroExclusao = signal('');
+  removendo = signal<number | null>(null);
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.plataforma)) {
@@ -26,11 +28,32 @@ export class AlunoLista implements OnInit {
     this.erro.set('');
 
     try {
-      await this.alunoService.listar();
+      await this.alunoService.carregarAlunos();
     } catch {
       this.erro.set('Não foi possível carregar os alunos. Tente atualizar a página.');
     } finally {
       this.carregando.set(false);
+    }
+  }
+
+  async excluir(cpf: number, nome: string): Promise<void> {
+    if (
+      !isPlatformBrowser(this.plataforma) ||
+      this.removendo() !== null ||
+      !window.confirm(`Deseja excluir o aluno ${nome}?`)
+    ) {
+      return;
+    }
+
+    this.erroExclusao.set('');
+    this.removendo.set(cpf);
+
+    try {
+      await this.alunoService.deletarAluno(cpf);
+    } catch {
+      this.erroExclusao.set('Não foi possível excluir o aluno. Tente novamente.');
+    } finally {
+      this.removendo.set(null);
     }
   }
 }

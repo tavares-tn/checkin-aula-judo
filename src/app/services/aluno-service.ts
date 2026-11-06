@@ -1,75 +1,50 @@
-import { PLATFORM_ID, Service, inject, signal } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { inject, Service, signal } from '@angular/core';
 import { Aluno } from '../models/aluno.model';
+import { DbService } from './db-service';
 
 @Service()
 export class AlunoService {
-  private readonly plataforma = inject(PLATFORM_ID);
+  private dbService = inject(DbService);
   private readonly alunosSignal = signal<Aluno[]>([]);
-  readonly alunos = this.alunosSignal.asReadonly();
+  alunos = this.alunosSignal.asReadonly();
 
-  async listar(): Promise<Aluno[]> {
-    const banco = await this.abrirBanco();
-
-    return new Promise((resolve, reject) => {
-      const requisicao = banco
-        .transaction('alunos', 'readonly')
-        .objectStore('alunos')
-        .getAll();
-
-      requisicao.onsuccess = () => {
-        banco.close();
-        this.alunosSignal.set(requisicao.result);
-        resolve(requisicao.result);
-      };
-
-      requisicao.onerror = () => {
-        banco.close();
-        reject(requisicao.error ?? new Error('Não foi possível listar os alunos.'));
-      };
+  carregarAlunos() {
+    return this.dbService.alunos.toArray().then((alunos) => {
+      this.alunosSignal.set(alunos);
     });
   }
 
-  async cadastrar(aluno: Aluno): Promise<void> {
-    const banco = await this.abrirBanco();
+  buscarAluno(cpf: number) {
+    return this.dbService.alunos.get(cpf);
+  }
 
-    return new Promise((resolve, reject)   => {
-      const transacao = banco.transaction('alunos', 'readwrite');
-      transacao.objectStore('alunos').add(aluno);
-
-      transacao.oncomplete = () => {
-        banco.close();
-        this.alunosSignal.update((alunos) => [...alunos, aluno]);
-        resolve();
-      };
-
-      transacao.onerror = () => {
-        banco.close();
-        reject(transacao.error ?? new Error('Não foi possível cadastrar o aluno.'));
-      };
-
-      transacao.onabort = () => {
-        banco.close();
-        reject(transacao.error ?? new Error('O cadastro do aluno foi cancelado.'));
-      };
+  addAluno(novoAluno: Aluno) {
+    return this.dbService.alunos.add(novoAluno).then(() => {
+      this.alunosSignal.update((alunos) => [...alunos, novoAluno]);
     });
   }
 
-  private abrirBanco(): Promise<IDBDatabase> {
-    if (!isPlatformBrowser(this.plataforma)) {
-      return Promise.reject(new Error('O banco de dados só está disponível no navegador.'));
-    }
+  atualizarAluno(aluno: Aluno) {
+    return this.dbService.alunos
+      .update(aluno.cpf, {
+        nome: aluno.nome,
+        graduacao: aluno.graduacao,
+      })
+      .then((quantidadeAtualizada) => {
+        if (quantidadeAtualizada === 0) {
+          return false;
+        }
 
-    return new Promise((resolve, reject) => {
-      const requisicao = indexedDB.open('checkin-aula-judo', 1);
+        this.alunosSignal.update((alunos) =>
+          alunos.map((atual) => (atual.cpf === aluno.cpf ? aluno : atual)),
+        );
+        return true;
+      });
+  }
 
-      requisicao.onupgradeneeded = () => {
-        requisicao.result.createObjectStore('alunos', { keyPath: 'cpf' });
-      };
-
-      requisicao.onsuccess = () => resolve(requisicao.result);
-      requisicao.onerror = () =>
-        reject(requisicao.error ?? new Error('Não foi possível abrir o banco de dados.'));
+  deletarAluno(cpf: number) {
+    return this.dbService.alunos.delete(cpf).then(() => {
+      this.alunosSignal.update((alunos) => alunos.filter((aluno) => aluno.cpf !== cpf));
     });
   }
 }
