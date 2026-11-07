@@ -1,0 +1,81 @@
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="h3 mb-4">Editar aluno</h1>
+
+          @if (carregando()) {
+            <p role="status">Carregando aluno...</p>
+          } @else if (naoEncontrado()) {
+            <div class="alert alert-warning" role="alert">Aluno não encontrado.</div>
+            <a routerLink="/alunos" class="btn btn-outline-secondary">Ver alunos</a>
+          } @else {
+            @if (atualizado()) {
+              <div class="alert alert-success" role="status">Aluno atualizado com sucesso.</div>
+            }
+
+            @if (erro()) {
+              <div class="alert alert-danger" role="alert">{{ erro() }}</div>
+            }
+
+            <form #formulario="ngForm" (ngSubmit)="atualizar(formulario)">
+              <div class="mb-3">
+                <label for="cpf" class="form-label">CPF</label>
+                <input id="cpf" class="form-control" [value]="aluno.cpf" disabled />
+                <div class="form-text">O CPF não pode ser alterado.</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="nome" class="form-label">Nome</label>
+                <input
+                  id="nome"
+                  name="nome"
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="aluno.nome"
+                  #nome="ngModel"
+                  required
+                  maxlength="100"
+                />
+                @if (nome.invalid && nome.touched) {
+                  <div class="form-text text-danger">Informe o nome do aluno.</div>
+                }
+              </div>
+
+              <div class="mb-4">
+                <label for="graduacao" class="form-label">Graduação</label>
+                <select
+                  id="graduacao"
+                  name="graduacao"
+                  class="form-control"
+                  [(ngModel)]="aluno.graduacao"
+                  #graduacao="ngModel"
+                  required
+                >
+                  @for (faixa of faixasGraduacao; track faixa) {
+                    <option [ngValue]="faixa">{{ faixa }}</option>
+                  }
+                </select>
+                @if (graduacao.invalid && graduacao.touched) {
+                  <div class="form-text text-danger">Informe a graduação do aluno.</div>
+                }
+              </div>
+
+              <div class="d-flex gap-2">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="formulario.invalid || salvando()"
+                >
+                  {{ salvando() ? 'Salvando...' : 'Salvar alterações' }}
+                </button>
+                <a routerLink="/alunos" class="btn btn-outline-secondary">Ver alunos</a>
+              </div>
+            </form>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

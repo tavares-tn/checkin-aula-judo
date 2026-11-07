@@ -10,6 +10,10 @@
     </a>
   </div>
 
+  @if (erroExclusao()) {
+    <div class="alert alert-danger" role="alert">{{ erroExclusao() }}</div>
+  }
+
   @if (carregando()) {
     <p role="status">Carregando alunos...</p>
   } @else if (erro()) {
@@ -27,6 +31,7 @@
             <th scope="col">CPF</th>
             <th scope="col">Nome</th>
             <th scope="col">Graduação</th>
+            <th scope="col">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -35,6 +40,24 @@
               <td>{{ aluno.cpf }}</td>
               <td>{{ aluno.nome }}</td>
               <td>{{ aluno.graduacao }}</td>
+              <td>
+                <a
+                  [routerLink]="['/alunos/editar', aluno.cpf]"
+                  class="btn btn-sm btn-outline-primary"
+                  [attr.aria-label]="'Editar ' + aluno.nome"
+                >
+                  Editar
+                </a>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger ms-2"
+                  [disabled]="removendo() !== null"
+                  [attr.aria-label]="'Excluir ' + aluno.nome"
+                  (click)="excluir(aluno.cpf, aluno.nome)"
+                >
+                  {{ removendo() === aluno.cpf ? 'Excluindo...' : 'Excluir' }}
+                </button>
+              </td>
             </tr>
           }
         </tbody>
