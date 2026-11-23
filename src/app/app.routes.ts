@@ -6,6 +6,8 @@ import { AlunoLista } from './components/aluno-lista/aluno-lista';
 import { AulaCadastro } from './components/aula-cadastro/aula-cadastro';
 import { AulaEdicao } from './components/aula-edicao/aula-edicao';
 import { AulaLista } from './components/aula-lista/aula-lista';
+import { CheckinAluno } from './components/checkin-aluno/checkin-aluno';
+import { CheckinVisualizar } from './components/checkin-visualizar/checkin-visualizar';
 
 export const routes: Routes = [
   { path: '', component: Home, title: 'Início' },
@@ -15,5 +17,7 @@ export const routes: Routes = [
   { path: 'aulas', component: AulaLista, title: 'Aulas cadastradas' },
   { path: 'aulas/cadastrar', component: AulaCadastro, title: 'Cadastrar aula' },
   { path: 'aulas/editar/:id', component: AulaEdicao, title: 'Editar aula' },
+  { path: 'checkin-aluno', component: CheckinAluno, title: 'Check-in do aluno' },
+  { path: 'checkin-visualizar', component: CheckinVisualizar, title: 'Check-ins realizados' },
   { path: '**', redirectTo: '' },
 ];
