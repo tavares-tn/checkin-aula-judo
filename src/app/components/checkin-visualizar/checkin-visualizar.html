@@ -1,0 +1,89 @@
+<section class="container py-5">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1">Check-ins realizados</h1>
+      <p class="text-body-secondary mb-0">Consulte as aulas marcadas pelos alunos.</p>
+    </div>
+    <a routerLink="/checkin-aluno" class="btn btn-primary">Realizar check-in</a>
+  </div>
+
+  @if (erroExclusao()) {
+    <div class="alert alert-danger" role="alert">{{ erroExclusao() }}</div>
+  }
+
+  @if (carregando()) {
+    <p role="status">Carregando check-ins...</p>
+  } @else if (erro()) {
+    <div class="alert alert-danger" role="alert">{{ erro() }}</div>
+  } @else {
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-5">
+        <label for="filtro-aluno" class="form-label">Filtrar por aluno</label>
+        <select id="filtro-aluno" name="filtroAluno" class="form-select" [(ngModel)]="alunoFiltro">
+          <option [ngValue]="null">Todos os alunos</option>
+          @for (aluno of alunos(); track aluno.cpf) {
+            <option [ngValue]="aluno.cpf">{{ aluno.nome }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-12 col-md-5">
+        <label for="filtro-aula" class="form-label">Filtrar por aula</label>
+        <select id="filtro-aula" name="filtroAula" class="form-select" [(ngModel)]="aulaFiltro">
+          <option [ngValue]="null">Todas as aulas</option>
+          @for (aula of aulas(); track aula.id) {
+            <option [ngValue]="aula.id">{{ aula.tema }} - {{ aula.data }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-12 col-md-2 d-flex align-items-end">
+        <button
+          type="button"
+          class="btn btn-outline-secondary w-100"
+          (click)="alunoFiltro = null; aulaFiltro = null"
+        >
+          Limpar filtros
+        </button>
+      </div>
+    </div>
+
+    @if (checkins().length === 0) {
+      <div class="alert alert-info" role="status">
+        Nenhum check-in realizado.
+        <a routerLink="/checkin-aluno" class="alert-link">Realize o primeiro check-in.</a>
+      </div>
+    } @else if (checkinsFiltrados().length === 0) {
+      <div class="alert alert-info" role="status">Nenhum check-in encontrado para esses filtros.</div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Aluno</th>
+              <th scope="col">Aula</th>
+              <th scope="col">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (checkin of checkinsFiltrados(); track checkin.id) {
+              <tr>
+                <td>{{ nomeAluno(checkin.alunoId) }}</td>
+                <td>{{ descricaoAula(checkin.aulaId) }}</td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    [disabled]="removendo() !== null"
+                    [attr.aria-label]="'Excluir check-in de ' + nomeAluno(checkin.alunoId)"
+                    (click)="excluir(checkin.id!, checkin.alunoId, checkin.aulaId)"
+                  >
+                    {{ removendo() === checkin.id ? 'Excluindo...' : 'Excluir' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</section>

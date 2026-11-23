@@ -1,0 +1,83 @@
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="h3 mb-4">Check-in do aluno</h1>
+
+          @if (carregando()) {
+            <p role="status">Carregando alunos e aulas...</p>
+          } @else {
+            @if (mensagem()) {
+              <div class="alert alert-success" role="status">{{ mensagem() }}</div>
+            }
+
+            @if (erro()) {
+              <div class="alert alert-danger" role="alert">{{ erro() }}</div>
+            }
+
+            @if (alunos().length === 0 || aulas().length === 0) {
+              <div class="alert alert-info" role="status">
+                @if (alunos().length === 0) {
+                  Cadastre um aluno antes de realizar o check-in.
+                  <a routerLink="/alunos/cadastrar" class="alert-link">Cadastrar aluno</a>
+                }
+                @if (alunos().length === 0 && aulas().length === 0) {
+                  <br />
+                }
+                @if (aulas().length === 0) {
+                  Cadastre uma aula antes de realizar o check-in.
+                  <a routerLink="/aulas/cadastrar" class="alert-link">Cadastrar aula</a>
+                }
+              </div>
+            } @else {
+              <form #formulario="ngForm" (ngSubmit)="marcar()">
+                <div class="mb-3">
+                  <label for="aluno" class="form-label">Aluno</label>
+                  <select
+                    id="aluno"
+                    name="aluno"
+                    class="form-select"
+                    [(ngModel)]="alunoId"
+                    required
+                  >
+                    <option [ngValue]="null" disabled>Selecione o aluno</option>
+                    @for (aluno of alunos(); track aluno.cpf) {
+                      <option [ngValue]="aluno.cpf">{{ aluno.nome }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="mb-4">
+                  <label for="aula" class="form-label">Aula</label>
+                  <select
+                    id="aula"
+                    name="aula"
+                    class="form-select"
+                    [(ngModel)]="aulaId"
+                    required
+                  >
+                    <option [ngValue]="null" disabled>Selecione a aula</option>
+                    @for (aula of aulas(); track aula.id) {
+                      <option [ngValue]="aula.id">
+                        {{ aula.tema }} - {{ aula.data }}
+                      </option>
+                    }
+                  </select>
+                </div>
+
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="formulario.invalid || salvando()"
+                >
+                  {{ salvando() ? 'Marcando...' : 'Marcar presença' }}
+                </button>
+              </form>
+            }
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
