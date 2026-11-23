@@ -1,0 +1,72 @@
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="h3 mb-4">Editar aula</h1>
+
+          @if (carregando()) {
+            <p role="status">Carregando aula...</p>
+          } @else if (naoEncontrada()) {
+            <div class="alert alert-warning" role="alert">Aula não encontrada.</div>
+            <a routerLink="/aulas" class="btn btn-outline-secondary">Ver aulas</a>
+          } @else {
+            @if (atualizada()) {
+              <div class="alert alert-success" role="status">Aula atualizada com sucesso.</div>
+            }
+
+            @if (erro()) {
+              <div class="alert alert-danger" role="alert">{{ erro() }}</div>
+            }
+
+            <form #formulario="ngForm" (ngSubmit)="atualizar(formulario)">
+              <div class="mb-3">
+                <label for="tema" class="form-label">Tema</label>
+                <input
+                  id="tema"
+                  name="tema"
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="aula.tema"
+                  #tema="ngModel"
+                  required
+                  maxlength="100"
+                />
+                @if (tema.invalid && tema.touched) {
+                  <div class="form-text text-danger">Informe o tema da aula.</div>
+                }
+              </div>
+
+              <div class="mb-4">
+                <label for="data" class="form-label">Data</label>
+                <input
+                  id="data"
+                  name="data"
+                  type="date"
+                  class="form-control"
+                  [(ngModel)]="aula.data"
+                  #data="ngModel"
+                  required
+                />
+                @if (data.invalid && data.touched) {
+                  <div class="form-text text-danger">Informe a data da aula.</div>
+                }
+              </div>
+
+              <div class="d-flex gap-2">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="formulario.invalid || salvando()"
+                >
+                  {{ salvando() ? 'Salvando...' : 'Salvar alterações' }}
+                </button>
+                <a routerLink="/aulas" class="btn btn-outline-secondary">Ver aulas</a>
+              </div>
+            </form>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
